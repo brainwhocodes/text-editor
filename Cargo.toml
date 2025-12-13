@@ -1,0 +1,12 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/app",
+  "crates/core",
+  "crates/workspace",
+  "crates/editor",
+  "crates/syntax",
+  "crates/ai",
+  "crates/diff",
+  "crates/plugins",
+]
