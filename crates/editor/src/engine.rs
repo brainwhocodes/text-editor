@@ -7,10 +7,12 @@ use crate::layout::{
 };
 use crate::search::{SearchDirection, SearchMatch, SearchQuery, byte_to_char_idx, char_to_byte_idx};
 use crate::selection::{Selection, SelectionSet};
+use crate::text_shaping::{ShapedLine, TextShaper};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 struct CachedLine {
     text: String,
+    shaped: Option<ShapedLine>,
 }
 
 #[derive(Debug, Clone)]
@@ -23,19 +25,27 @@ pub struct EditorEngine {
     line_cache: HashMap<usize, CachedLine>,
     cached_doc_version: u64,
     cached_line_count: usize,
+    shaper: TextShaper,
 }
 
 impl EditorEngine {
     pub fn new(text: &str) -> Self {
+        let shaper = TextShaper::new(14.0);
+        let metrics_from_shaper = shaper.metrics();
+        let metrics = FontMetrics {
+            char_width_px: metrics_from_shaper.avg_char_width,
+            line_height_px: metrics_from_shaper.line_height,
+        };
         Self {
             buffer: Buffer::new(text),
-            metrics: FontMetrics::default(),
+            metrics,
             layout: LayoutConfig::default(),
             viewport: Viewport { first_line: 0, max_lines: 64, width_cols: 120 },
             keymap: Keymap::with_defaults(),
             line_cache: HashMap::new(),
             cached_doc_version: 0,
             cached_line_count: 0,
+            shaper,
         }
     }
 
@@ -91,21 +101,20 @@ impl EditorEngine {
         let selections = self.buffer.selections.all_including_primary();
         let active_line = self.buffer.doc.char_to_line(self.buffer.selections.primary.head);
         let mut lines = Vec::with_capacity(last_exclusive.saturating_sub(first));
-        let mut y_px = 0u32;
+        let mut y_px = 0.0f32;
         for line_idx in first..last_exclusive {
-            let text = self
-                .line_cache
-                .get(&line_idx)
-                .map(|c| c.text.clone())
-                .unwrap_or_else(|| {
-                    let t = self.buffer.doc.line_text(line_idx);
-                    self.line_cache.insert(line_idx, CachedLine { text: t.clone() });
-                    t
-                });
+            let (text, shaped) = if let Some(cached) = self.line_cache.get(&line_idx) {
+                (cached.text.clone(), cached.shaped.clone())
+            } else {
+                let t = self.buffer.doc.line_text(line_idx);
+                let s = self.shaper.shape_line(&t);
+                self.line_cache.insert(line_idx, CachedLine { text: t.clone(), shaped: Some(s.clone()) });
+                (t, Some(s))
+            };
             let segments = if self.layout.soft_wrap && self.viewport.width_cols > 0 {
                 split_by_cols(&text, self.viewport.width_cols)
             } else {
-                vec![text]
+                vec![text.clone()]
             };
             for (segment_idx, segment) in segments.iter().enumerate() {
                 let wrap_col_offset = segment_idx * self.viewport.width_cols;
@@ -151,8 +160,9 @@ impl EditorEngine {
                     selections: selection_spans,
                     cursors,
                     is_current_line: line_idx == active_line,
+                    shaped: shaped.clone(),
                 });
-                y_px = y_px.saturating_add(self.metrics.line_height_px);
+                y_px += self.metrics.line_height_px;
             }
         }
         EditorViewModel { lines, gutter_width_cols }

@@ -1,26 +1,47 @@
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct FontMetrics {
-    pub char_width_px: u32,
-    pub line_height_px: u32,
+    pub char_width_px: f32,
+    pub line_height_px: f32,
 }
 
 impl Default for FontMetrics {
     fn default() -> Self {
         Self {
-            char_width_px: 8,
-            line_height_px: 16,
+            char_width_px: 8.0,
+            line_height_px: 16.0,
         }
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LayoutConfig {
     pub soft_wrap: bool,
+    pub whitespace: WhitespaceConfig,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct WhitespaceConfig {
+    pub show_spaces: bool,
+    pub show_tabs: bool,
+    pub show_newlines: bool,
+}
+
+impl Default for WhitespaceConfig {
+    fn default() -> Self {
+        Self {
+            show_spaces: false,
+            show_tabs: false,
+            show_newlines: false,
+        }
+    }
 }
 
 impl Default for LayoutConfig {
     fn default() -> Self {
-        Self { soft_wrap: false }
+        Self {
+            soft_wrap: false,
+            whitespace: WhitespaceConfig::default(),
+        }
     }
 }
 
@@ -37,18 +58,19 @@ pub struct SelectionSpan {
     pub end_col: usize,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub struct VisualLine {
     pub line_idx: usize,
-    pub y_px: u32,
+    pub y_px: f32,
     pub wrap_col_offset: usize,
     pub text: String,
     pub selections: Vec<SelectionSpan>,
     pub cursors: Vec<usize>,
     pub is_current_line: bool,
+    pub shaped: Option<crate::text_shaping::ShapedLine>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub struct EditorViewModel {
     pub lines: Vec<VisualLine>,
     pub gutter_width_cols: usize,

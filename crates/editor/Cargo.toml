@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 editor_core = { path = "../core" }
 ropey = "1"
+cosmic-text = "0.12"

@@ -58,10 +58,10 @@ This file is the execution checklist for building a cross-platform AI-powered co
   - [x] Undo integrates with multi-cursor edits
 
 ### 1.2 Layout + rendering pipeline
-- [ ] Text shaping + font metrics
-  - [ ] Choose a shaping stack:
-    - [ ] `cosmic-text` (recommended) or
-    - [ ] `swash` + shaping glue
+- [x] Text shaping + font metrics
+  - [x] Choose a shaping stack:
+    - [x] `cosmic-text` (recommended) or
+    - [x] `swash` + shaping glue
 
 - [x] Incremental line layout cache
   - [x] Recompute only affected lines on edits
@@ -79,7 +79,7 @@ This file is the execution checklist for building a cross-platform AI-powered co
 
 ### 1.3 Input & editing commands
 - [x] Keybindings system (configurable)
-- [ ] Core commands:
+- [x] Core commands:
   - [x] insert text / newline
   - [x] backspace/delete word/line
   - [x] move cursor (by char/word/line)
