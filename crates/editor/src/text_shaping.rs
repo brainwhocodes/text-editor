@@ -30,6 +30,8 @@ pub struct FontMetrics {
 
 pub struct TextShaper {
     font_system: FontSystem,
+    // future use
+    #[allow(dead_code)]
     swash_cache: SwashCache,
     font_size: f32,
 }

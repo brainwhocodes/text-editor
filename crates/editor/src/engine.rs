@@ -8,6 +8,7 @@ use crate::layout::{
 use crate::search::{SearchDirection, SearchMatch, SearchQuery, byte_to_char_idx, char_to_byte_idx};
 use crate::selection::{Selection, SelectionSet};
 use crate::text_shaping::{ShapedLine, TextShaper};
+use syntax::{LanguageRegistry, SyntaxHighlighter};
 
 #[derive(Debug, Clone)]
 struct CachedLine {
@@ -26,6 +27,9 @@ pub struct EditorEngine {
     cached_doc_version: u64,
     cached_line_count: usize,
     shaper: TextShaper,
+    highlighter: Option<SyntaxHighlighter>,
+    language_registry: LanguageRegistry,
+    current_filename: Option<String>,
 }
 
 impl EditorEngine {
@@ -46,6 +50,22 @@ impl EditorEngine {
             cached_doc_version: 0,
             cached_line_count: 0,
             shaper,
+            highlighter: None,
+            language_registry: LanguageRegistry::new(),
+            current_filename: None,
+        }
+    }
+
+    pub fn set_filename(&mut self, filename: &str) {
+        self.current_filename = Some(filename.to_string());
+        if let Some(lang_config) = self.language_registry.detect_language(filename) {
+            let mut highlighter = SyntaxHighlighter::new();
+            if highlighter.set_language(lang_config).is_ok() {
+                let _ = highlighter.parse(&self.buffer.doc.to_string());
+                self.highlighter = Some(highlighter);
+            }
+        } else {
+            self.highlighter = None;
         }
     }
 
@@ -152,6 +172,15 @@ impl EditorEngine {
                         }
                     }
                 }
+                let highlights = if let Some(ref mut highlighter) = self.highlighter {
+                    highlighter.highlight_lines(&self.buffer.doc.to_string(), line_idx..line_idx + 1)
+                        .ok()
+                        .and_then(|mut h| h.pop())
+                        .map(|h| h.spans)
+                        .unwrap_or_default()
+                } else {
+                    Vec::new()
+                };
                 lines.push(VisualLine {
                     line_idx,
                     y_px,
@@ -161,6 +190,7 @@ impl EditorEngine {
                     cursors,
                     is_current_line: line_idx == active_line,
                     shaped: shaped.clone(),
+                    highlights,
                 });
                 y_px += self.metrics.line_height_px;
             }

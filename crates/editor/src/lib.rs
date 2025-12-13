@@ -20,3 +20,5 @@ pub use layout::{
 pub use search::{SearchDirection, SearchMatch, SearchQuery};
 pub use selection::{Cursor, LineCol, Selection, SelectionSet};
 pub use text_shaping::{ShapedGlyph, ShapedLine, TextShaper};
+
+pub use syntax::{HighlightSpan, LanguageRegistry, SyntaxHighlighter, TokenType};

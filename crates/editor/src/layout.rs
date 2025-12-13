@@ -68,6 +68,7 @@ pub struct VisualLine {
     pub cursors: Vec<usize>,
     pub is_current_line: bool,
     pub shaped: Option<crate::text_shaping::ShapedLine>,
+    pub highlights: Vec<syntax::HighlightSpan>,
 }
 
 #[derive(Debug, Clone)]

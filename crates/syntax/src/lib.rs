@@ -1,7 +1,7 @@
-pub struct SyntaxService;
+mod highlight;
+mod language;
+mod parser;
 
-impl SyntaxService {
-    pub fn new() -> Self {
-        Self
-    }
-}
+pub use highlight::{HighlightSpan, LineHighlights, SyntaxHighlighter};
+pub use language::{LanguageConfig, LanguageRegistry, TokenType};
+pub use parser::{create_input_edit, IncrementalParser};

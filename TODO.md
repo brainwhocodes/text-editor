@@ -98,14 +98,14 @@ This file is the execution checklist for building a cross-platform AI-powered co
 ## 2) Syntax Highlighting + Language Features
 
 ### 2.1 Tree-sitter integration
-- [ ] `syntax` crate with:
-  - [ ] language registry (by file extension)
-  - [ ] incremental parse on edits (tree-sitter)
-  - [ ] capture highlights using query files
+- [x] `syntax` crate with:
+  - [x] language registry (by file extension)
+  - [x] incremental parse on edits (tree-sitter)
+  - [x] capture highlights using query files
 
-- [ ] Highlight token stream
-  - [ ] Produce per-line spans (start..end -> token type)
-  - [ ] Incremental update for only invalidated regions
+- [x] Highlight token stream
+  - [x] Produce per-line spans (start..end -> token type)
+  - [x] Incremental update for only invalidated regions
 
 ### 2.2 Optional IDE features (later phases)
 - [ ] Diagnostics/linters integration hooks
