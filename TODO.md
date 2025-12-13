@@ -63,34 +63,34 @@ This file is the execution checklist for building a cross-platform AI-powered co
     - [ ] `cosmic-text` (recommended) or
     - [ ] `swash` + shaping glue
 
-- [ ] Incremental line layout cache
-  - [ ] Recompute only affected lines on edits
-  - [ ] Support soft wrap (toggleable)
+- [x] Incremental line layout cache
+  - [x] Recompute only affected lines on edits
+  - [x] Support soft wrap (toggleable)
 
-- [ ] Viewport rendering
-  - [ ] Render only visible lines
-  - [ ] Fast scrolling with caching
+- [x] Viewport rendering
+  - [x] Render only visible lines
+  - [x] Fast scrolling with caching
 
-- [ ] Editor visuals
-  - [ ] Gutter (line numbers)
-  - [ ] Cursor + selection rendering
-  - [ ] Current line highlight
+- [x] Editor visuals
+  - [x] Gutter (line numbers)
+  - [x] Cursor + selection rendering
+  - [x] Current line highlight
   - [ ] Whitespace rendering toggles (optional)
 
 ### 1.3 Input & editing commands
-- [ ] Keybindings system (configurable)
+- [x] Keybindings system (configurable)
 - [ ] Core commands:
-  - [ ] insert text / newline
-  - [ ] backspace/delete word/line
-  - [ ] move cursor (by char/word/line)
-  - [ ] copy/cut/paste
-  - [ ] indent/outdent
-  - [ ] duplicate line
-  - [ ] comment toggle (language-aware later)
+  - [x] insert text / newline
+  - [x] backspace/delete word/line
+  - [x] move cursor (by char/word/line)
+  - [x] copy/cut/paste
+  - [x] indent/outdent
+  - [x] duplicate line
+  - [x] comment toggle (language-aware later)
 
 ### 1.4 Search
-- [ ] Find (incremental)
-- [ ] Replace (single + replace-all)
+- [x] Find (incremental)
+- [x] Replace (single + replace-all)
 - [ ] Optional: regex search later
 
 ---
