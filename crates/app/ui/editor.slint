@@ -1,0 +1,159 @@
+import { ScrollView } from "std-widgets.slint";
+import { EditorTab, EditorLine, DiffHunk, StatusBar } from "components.slint";
+
+export component EditorWidget inherits Rectangle {
+    in-out property <bool> has_pending_diff: true;
+    in-out property <int> current_line: 3;
+
+    background: #1e1e1e;
+
+    ScrollView {
+        min-height: 0px;
+        vertical-stretch: 1;
+
+        VerticalLayout {
+            spacing: 0px;
+            padding-top: 4px;
+
+            EditorLine { line_num: 1; content: "use std::io;"; }
+            EditorLine { line_num: 2; content: ""; }
+            EditorLine { line_num: 3; content: "fn main() {"; is_current: root.current_line == 3; }
+            EditorLine { line_num: 4; content: "    println!(\"Hello, world!\");"; }
+            EditorLine { line_num: 5; content: "}"; }
+            EditorLine { line_num: 6; content: ""; }
+
+            if (root.has_pending_diff) : DiffHunk {
+                hunk_header: "@@ -7,3 +7,5 @@ fn main()";
+                accept => { }
+                reject => { }
+            }
+
+            EditorLine { line_num: 7; content: "fn calculate(x: i32, y: i32) -> i32 {"; }
+            EditorLine { line_num: 8; content: "    x + y"; }
+            EditorLine { line_num: 9; content: "}"; }
+            EditorLine { line_num: 10; content: ""; }
+
+            if (root.has_pending_diff) : DiffHunk {
+                hunk_header: "@@ -11,2 +13,4 @@ fn calculate()";
+                accept => { }
+                reject => { }
+            }
+
+            EditorLine { line_num: 11; content: "fn other_function() {"; }
+            EditorLine { line_num: 12; content: "    // TODO: implement"; }
+            EditorLine { line_num: 13; content: "}"; }
+        }
+    }
+}
+
+export component EditorArea inherits Rectangle {
+    in-out property <bool> has_pending_diff: true;
+    in-out property <int> active_tab: 0;
+    in property <string> cursor_position: "Ln 3, Col 1";
+    in property <string> language: "Rust";
+    in property <string> ai_model: "gpt-4o-mini";
+    callback tab_activated(int);
+    callback tab_closed(int);
+    callback accept_all();
+    callback reject_all();
+    
+    background: #1e1e1e;
+
+    VerticalLayout {
+        spacing: 0px;
+
+        Rectangle {
+            height: 36px;
+            background: #2d2d2d;
+
+            HorizontalLayout {
+                padding-left: 4px;
+                padding-right: 8px;
+                spacing: 0px;
+
+                EditorTab {
+                    filename: "main.rs";
+                    active: root.active_tab == 0;
+                    dirty: true;
+                    activated => { root.active_tab = 0; root.tab_activated(0); }
+                    closed => { root.tab_closed(0); }
+                }
+
+                EditorTab {
+                    filename: "lib.rs";
+                    active: root.active_tab == 1;
+                    dirty: false;
+                    activated => { root.active_tab = 1; root.tab_activated(1); }
+                    closed => { root.tab_closed(1); }
+                }
+
+                EditorTab {
+                    filename: "engine.rs";
+                    active: root.active_tab == 2;
+                    dirty: false;
+                    activated => { root.active_tab = 2; root.tab_activated(2); }
+                    closed => { root.tab_closed(2); }
+                }
+
+                Rectangle {
+                    horizontal-stretch: 1;
+                }
+
+                if (root.has_pending_diff) : Rectangle {
+                    width: 90px;
+                    height: 26px;
+                    background: #2d4a2d;
+                    border-radius: 4px;
+                    y: 5px;
+
+                    TouchArea {
+                        clicked => { root.accept_all(); }
+                    }
+
+                    Text {
+                        text: "Accept All";
+                        color: #8fdf8f;
+                        font-size: 11px;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+
+                if (root.has_pending_diff) : Rectangle {
+                    width: 8px;
+                }
+
+                if (root.has_pending_diff) : Rectangle {
+                    width: 90px;
+                    height: 26px;
+                    background: #4a2d2d;
+                    border-radius: 4px;
+                    y: 5px;
+
+                    TouchArea {
+                        clicked => { root.reject_all(); }
+                    }
+
+                    Text {
+                        text: "Reject All";
+                        color: #df8f8f;
+                        font-size: 11px;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+        }
+
+        EditorWidget {
+            has_pending_diff: root.has_pending_diff;
+            vertical-stretch: 1;
+        }
+
+        StatusBar {
+            cursor_position: root.cursor_position;
+            language: root.language;
+            ai_model: root.ai_model;
+        }
+    }
+}

@@ -1,0 +1,397 @@
+import { Button, ComboBox, LineEdit, ScrollView } from "std-widgets.slint";
+
+export component PanelHeader inherits Rectangle {
+    in property <string> title;
+    in property <bool> collapsible: false;
+    in-out property <bool> collapsed: false;
+    
+    height: 28px;
+    background: #252526;
+
+    HorizontalLayout {
+        padding-left: 8px;
+        padding-right: 8px;
+        spacing: 4px;
+
+        if (root.collapsible) : Text {
+            text: root.collapsed ? "▶" : "▼";
+            color: #cccccc;
+            font-size: 10px;
+            vertical-alignment: center;
+        }
+
+        Text {
+            text: root.title;
+            color: #cccccc;
+            font-size: 11px;
+            font-weight: 700;
+            vertical-alignment: center;
+        }
+    }
+
+    TouchArea {
+        clicked => {
+            if (root.collapsible) {
+                root.collapsed = !root.collapsed;
+            }
+        }
+    }
+}
+
+export component FileTreeItem inherits Rectangle {
+    in property <string> name;
+    in property <string> icon: "📄";
+    in property <int> indent: 0;
+    in property <bool> is_folder: false;
+    in property <bool> expanded: false;
+    in property <bool> selected: false;
+    callback clicked();
+
+    height: 22px;
+    background: selected ? #094771 : transparent;
+
+    HorizontalLayout {
+        padding-left: 8px + root.indent * 12px;
+        spacing: 4px;
+
+        Text {
+            text: is_folder ? (expanded ? "▼" : "▶") : " ";
+            color: #858585;
+            font-size: 9px;
+            width: 12px;
+            vertical-alignment: center;
+        }
+
+        Text {
+            text: root.icon;
+            font-size: 12px;
+            vertical-alignment: center;
+        }
+
+        Text {
+            text: root.name;
+            color: root.selected ? #ffffff : #cccccc;
+            font-size: 12px;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+    }
+
+    TouchArea {
+        clicked => { root.clicked(); }
+    }
+}
+
+export component EditorTab inherits Rectangle {
+    in property <string> filename;
+    in property <bool> active: false;
+    in property <bool> dirty: false;
+    callback activated();
+    callback closed();
+
+    width: 140px;
+    height: 32px;
+    background: active ? #1e1e1e : #2d2d2d;
+
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 4px;
+        spacing: 4px;
+
+        Text {
+            text: root.filename;
+            color: active ? #ffffff : #969696;
+            font-size: 12px;
+            vertical-alignment: center;
+            overflow: elide;
+            horizontal-stretch: 1;
+        }
+
+        if (root.dirty) : Text {
+            text: "●";
+            color: #cccccc;
+            font-size: 10px;
+            vertical-alignment: center;
+        }
+
+        Rectangle {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            background: ta-close.has-hover ? #3c3c3c : transparent;
+
+            ta-close := TouchArea {
+                clicked => { root.closed(); }
+            }
+
+            Text {
+                text: "✕";
+                color: ta-close.has-hover ? #ffffff : #858585;
+                font-size: 11px;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+    }
+
+    TouchArea {
+        clicked => { root.activated(); }
+    }
+}
+
+export component LineNumber inherits Rectangle {
+    in property <int> line: 1;
+    in property <bool> current: false;
+
+    width: 48px;
+    height: 20px;
+    background: transparent;
+
+    HorizontalLayout {
+        padding-right: 12px;
+
+        Text {
+            text: root.line;
+            color: current ? #c6c6c6 : #6e7681;
+            font-size: 12px;
+            font-family: "Consolas";
+            horizontal-alignment: right;
+            vertical-alignment: center;
+        }
+    }
+}
+
+export component EditorLine inherits Rectangle {
+    in property <int> line_num: 1;
+    in property <string> content;
+    in property <bool> is_current: false;
+
+    height: 20px;
+    background: is_current ? #282828 : transparent;
+
+    HorizontalLayout {
+        spacing: 0px;
+
+        LineNumber {
+            line: root.line_num;
+            current: root.is_current;
+        }
+
+        Rectangle {
+            width: 1px;
+            background: #3c3c3c;
+        }
+
+        Rectangle {
+            horizontal-stretch: 1;
+
+            HorizontalLayout {
+                padding-left: 8px;
+
+                Text {
+                    text: root.content;
+                    color: #cccccc;
+                    font-size: 12px;
+                    font-family: "Consolas";
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+}
+
+export component DiffLine inherits Rectangle {
+    in property <string> line_text;
+    in property <bool> is_added: false;
+    in property <bool> is_removed: false;
+
+    height: 22px;
+    background: is_added ? #234023 : (is_removed ? #402323 : transparent);
+
+    HorizontalLayout {
+        spacing: 0px;
+
+        Rectangle {
+            width: 24px;
+            background: is_added ? #2d4a2d : (is_removed ? #4a2d2d : #1e1e1e);
+
+            Text {
+                text: is_added ? "+" : (is_removed ? "-" : " ");
+                color: is_added ? #73c973 : (is_removed ? #c97373 : #858585);
+                font-size: 12px;
+                font-family: "Consolas";
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+
+        Rectangle {
+            horizontal-stretch: 1;
+
+            HorizontalLayout {
+                padding-left: 8px;
+
+                Text {
+                    text: root.line_text;
+                    color: is_added ? #8fdf8f : (is_removed ? #df8f8f : #cccccc);
+                    font-size: 12px;
+                    font-family: "Consolas";
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+}
+
+export component DiffHunk inherits Rectangle {
+    in property <string> hunk_header: "@@ -10,5 +10,7 @@";
+    callback accept();
+    callback reject();
+
+    background: #252526;
+    border-radius: 4px;
+
+    VerticalLayout {
+        spacing: 0px;
+
+        Rectangle {
+            height: 32px;
+            background: #2d2d2d;
+            border-radius: 4px;
+
+            HorizontalLayout {
+                padding-left: 12px;
+                padding-right: 8px;
+                spacing: 8px;
+
+                Text {
+                    text: root.hunk_header;
+                    color: #6a9fb5;
+                    font-size: 11px;
+                    font-family: "Consolas";
+                    vertical-alignment: center;
+                }
+
+                Rectangle {
+                    horizontal-stretch: 1;
+                }
+
+                Rectangle {
+                    width: 70px;
+                    height: 24px;
+                    background: #2d4a2d;
+                    border-radius: 4px;
+                    y: 4px;
+
+                    TouchArea {
+                        clicked => { root.accept(); }
+                    }
+
+                    Text {
+                        text: "Accept";
+                        color: #8fdf8f;
+                        font-size: 11px;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+
+                Rectangle {
+                    width: 70px;
+                    height: 24px;
+                    background: #4a2d2d;
+                    border-radius: 4px;
+                    y: 4px;
+
+                    TouchArea {
+                        clicked => { root.reject(); }
+                    }
+
+                    Text {
+                        text: "Reject";
+                        color: #df8f8f;
+                        font-size: 11px;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+        }
+
+        VerticalLayout {
+            padding: 4px;
+            spacing: 0px;
+
+            DiffLine { line_text: "    let x = 10;"; }
+            DiffLine { line_text: "    let y = 20;"; is_removed: true; }
+            DiffLine { line_text: "    let y = calculate_value();"; is_added: true; }
+            DiffLine { line_text: "    let result = x + y;"; is_removed: true; }
+            DiffLine { line_text: "    let result = process(x, y);"; is_added: true; }
+            DiffLine { line_text: "    return result;"; is_added: true; }
+            DiffLine { line_text: "    println!(\"{}\", result);"; }
+        }
+    }
+}
+
+export component StatusBar inherits Rectangle {
+    in property <string> cursor_position: "Ln 3, Col 1";
+    in property <string> language: "Rust";
+    in property <string> encoding: "UTF-8";
+    in property <string> line_ending: "LF";
+    in property <string> ai_model: "gpt-4o-mini";
+
+    height: 24px;
+    background: #007acc;
+
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        spacing: 16px;
+
+        Text {
+            text: root.cursor_position;
+            color: #ffffff;
+            font-size: 11px;
+            vertical-alignment: center;
+        }
+
+        Text {
+            text: root.encoding;
+            color: #ffffff;
+            font-size: 11px;
+            vertical-alignment: center;
+        }
+
+        Text {
+            text: root.line_ending;
+            color: #ffffff;
+            font-size: 11px;
+            vertical-alignment: center;
+        }
+
+        Rectangle {
+            horizontal-stretch: 1;
+        }
+
+        Text {
+            text: root.language;
+            color: #ffffff;
+            font-size: 11px;
+            vertical-alignment: center;
+        }
+
+        Rectangle {
+            width: 1px;
+            height: 14px;
+            background: #ffffff40;
+            y: 5px;
+        }
+
+        Text {
+            text: "AI: " + root.ai_model;
+            color: #ffffff;
+            font-size: 11px;
+            vertical-alignment: center;
+        }
+    }
+}

@@ -1,0 +1,57 @@
+import { ExplorerPanel } from "explorer.slint";
+import { EditorArea } from "editor.slint";
+import { SidePanel } from "chat.slint";
+
+export component AppWindow inherits Window {
+    in-out property <string> chat_input;
+    in-out property <string> chat_output;
+    in-out property <string> api_key_input;
+    in-out property <string> key_status;
+    in-out property <string> model_id;
+    in-out property <string> model_status;
+    callback send_chat(string);
+    callback save_api_key(string);
+    callback remove_api_key();
+    callback save_model(string);
+
+    title: "AI Code Editor";
+    width: 1280px;
+    height: 800px;
+    background: #1e1e1e;
+
+    HorizontalLayout {
+        spacing: 0px;
+
+        ExplorerPanel {
+            width: 260px;
+        }
+
+        Rectangle {
+            width: 1px;
+            background: #3e3e42;
+        }
+
+        EditorArea {
+            horizontal-stretch: 1;
+        }
+
+        Rectangle {
+            width: 1px;
+            background: #3e3e42;
+        }
+
+        SidePanel {
+            width: 380px;
+            chat_input <=> root.chat_input;
+            chat_output <=> root.chat_output;
+            api_key_input <=> root.api_key_input;
+            key_status <=> root.key_status;
+            model_id <=> root.model_id;
+            model_status <=> root.model_status;
+            send_chat(msg) => { root.send_chat(msg); }
+            save_api_key(key) => { root.save_api_key(key); }
+            remove_api_key() => { root.remove_api_key(); }
+            save_model(model) => { root.save_model(model); }
+        }
+    }
+}

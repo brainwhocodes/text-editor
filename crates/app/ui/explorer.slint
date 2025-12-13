@@ -1,0 +1,85 @@
+import { ScrollView } from "std-widgets.slint";
+import { PanelHeader, FileTreeItem } from "components.slint";
+
+export component ExplorerPanel inherits Rectangle {
+    in property <string> workspace_name: "text-editor";
+    in-out property <int> selected_file: 0;
+    callback file_selected(int);
+
+    background: #252526;
+
+    VerticalLayout {
+        spacing: 0px;
+
+        PanelHeader {
+            title: root.workspace_name;
+            collapsible: true;
+        }
+
+        ScrollView {
+            min-height: 0px;
+            vertical-stretch: 1;
+
+            VerticalLayout {
+                spacing: 0px;
+                padding-top: 4px;
+
+                FileTreeItem {
+                    name: "src";
+                    icon: "📁";
+                    is_folder: true;
+                    expanded: true;
+                    indent: 0;
+                }
+
+                FileTreeItem {
+                    name: "main.rs";
+                    icon: "🦀";
+                    indent: 1;
+                    selected: root.selected_file == 0;
+                    clicked => { root.selected_file = 0; root.file_selected(0); }
+                }
+
+                FileTreeItem {
+                    name: "lib.rs";
+                    icon: "🦀";
+                    indent: 1;
+                    selected: root.selected_file == 1;
+                    clicked => { root.selected_file = 1; root.file_selected(1); }
+                }
+
+                FileTreeItem {
+                    name: "editor";
+                    icon: "📁";
+                    is_folder: true;
+                    expanded: true;
+                    indent: 1;
+                }
+
+                FileTreeItem {
+                    name: "engine.rs";
+                    icon: "🦀";
+                    indent: 2;
+                    selected: root.selected_file == 2;
+                    clicked => { root.selected_file = 2; root.file_selected(2); }
+                }
+
+                FileTreeItem {
+                    name: "Cargo.toml";
+                    icon: "📦";
+                    indent: 0;
+                    selected: root.selected_file == 3;
+                    clicked => { root.selected_file = 3; root.file_selected(3); }
+                }
+
+                FileTreeItem {
+                    name: "README.md";
+                    icon: "📝";
+                    indent: 0;
+                    selected: root.selected_file == 4;
+                    clicked => { root.selected_file = 4; root.file_selected(4); }
+                }
+            }
+        }
+    }
+}
