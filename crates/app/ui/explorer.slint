@@ -1,10 +1,22 @@
 import { ScrollView } from "std-widgets.slint";
 import { PanelHeader, FileTreeItem } from "components.slint";
 
+export struct FileEntry {
+    name: string,
+    path: string,
+    icon: string,
+    indent: int,
+    is_folder: bool,
+    expanded: bool,
+    visible: bool,
+}
+
 export component ExplorerPanel inherits Rectangle {
     in property <string> workspace_name: "text-editor";
-    in-out property <int> selected_file: 0;
-    callback file_selected(int);
+    in property <[FileEntry]> files: [];
+    in-out property <string> selected_path: "";
+    callback file_selected(string);
+    callback folder_toggled(string);
 
     background: #252526;
 
@@ -24,60 +36,22 @@ export component ExplorerPanel inherits Rectangle {
                 spacing: 0px;
                 padding-top: 4px;
 
-                FileTreeItem {
-                    name: "src";
-                    icon: "📁";
-                    is_folder: true;
-                    expanded: true;
-                    indent: 0;
-                }
-
-                FileTreeItem {
-                    name: "main.rs";
-                    icon: "🦀";
-                    indent: 1;
-                    selected: root.selected_file == 0;
-                    clicked => { root.selected_file = 0; root.file_selected(0); }
-                }
-
-                FileTreeItem {
-                    name: "lib.rs";
-                    icon: "🦀";
-                    indent: 1;
-                    selected: root.selected_file == 1;
-                    clicked => { root.selected_file = 1; root.file_selected(1); }
-                }
-
-                FileTreeItem {
-                    name: "editor";
-                    icon: "📁";
-                    is_folder: true;
-                    expanded: true;
-                    indent: 1;
-                }
-
-                FileTreeItem {
-                    name: "engine.rs";
-                    icon: "🦀";
-                    indent: 2;
-                    selected: root.selected_file == 2;
-                    clicked => { root.selected_file = 2; root.file_selected(2); }
-                }
-
-                FileTreeItem {
-                    name: "Cargo.toml";
-                    icon: "📦";
-                    indent: 0;
-                    selected: root.selected_file == 3;
-                    clicked => { root.selected_file = 3; root.file_selected(3); }
-                }
-
-                FileTreeItem {
-                    name: "README.md";
-                    icon: "📝";
-                    indent: 0;
-                    selected: root.selected_file == 4;
-                    clicked => { root.selected_file = 4; root.file_selected(4); }
+                for entry in root.files: FileTreeItem {
+                    name: entry.name;
+                    icon: entry.icon;
+                    indent: entry.indent;
+                    is_folder: entry.is_folder;
+                    expanded: entry.expanded;
+                    selected: entry.path == root.selected_path;
+                    is_visible: entry.visible;
+                    clicked => {
+                        if (entry.is_folder) {
+                            root.folder_toggled(entry.path);
+                        } else {
+                            root.selected_path = entry.path;
+                            root.file_selected(entry.path);
+                        }
+                    }
                 }
             }
         }

@@ -45,9 +45,11 @@ export component FileTreeItem inherits Rectangle {
     in property <bool> is_folder: false;
     in property <bool> expanded: false;
     in property <bool> selected: false;
+    in property <bool> is_visible: true;
     callback clicked();
 
-    height: 22px;
+    height: is_visible ? 22px : 0px;
+    opacity: is_visible ? 1.0 : 0.0;
     background: selected ? #094771 : transparent;
 
     HorizontalLayout {

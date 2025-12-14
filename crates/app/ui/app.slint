@@ -1,8 +1,11 @@
-import { ExplorerPanel } from "explorer.slint";
-import { EditorArea } from "editor.slint";
+import { ExplorerPanel, FileEntry } from "explorer.slint";
+import { EditorArea, EditorLineData, TabData } from "editor.slint";
 import { SidePanel } from "chat.slint";
 
+export { FileEntry, EditorLineData, TabData }
+
 export component AppWindow inherits Window {
+    // Chat properties
     in-out property <string> chat_input;
     in-out property <string> chat_output;
     in-out property <string> api_key_input;
@@ -14,6 +17,24 @@ export component AppWindow inherits Window {
     callback remove_api_key();
     callback save_model(string);
 
+    // Explorer properties
+    in property <string> workspace_name: "workspace";
+    in property <[FileEntry]> files: [];
+    in-out property <string> selected_path: "";
+    callback file_selected(string);
+    callback folder_toggled(string);
+
+    // Editor properties
+    in property <[TabData]> tabs: [];
+    in property <[EditorLineData]> editor_lines: [];
+    in property <int> current_line: 1;
+    in-out property <int> active_tab: -1;
+    in property <string> cursor_position: "Ln 1, Col 1";
+    in property <string> language: "Plain Text";
+    in property <string> status_message: "";
+    callback tab_selected(string);
+    callback tab_closed(string);
+
     title: "AI Code Editor";
     width: 1280px;
     height: 800px;
@@ -24,6 +45,11 @@ export component AppWindow inherits Window {
 
         ExplorerPanel {
             width: 260px;
+            workspace_name: root.workspace_name;
+            files: root.files;
+            selected_path <=> root.selected_path;
+            file_selected(path) => { root.file_selected(path); }
+            folder_toggled(path) => { root.folder_toggled(path); }
         }
 
         Rectangle {
@@ -33,6 +59,15 @@ export component AppWindow inherits Window {
 
         EditorArea {
             horizontal-stretch: 1;
+            tabs: root.tabs;
+            lines: root.editor_lines;
+            current_line: root.current_line;
+            active_tab <=> root.active_tab;
+            cursor_position: root.cursor_position;
+            language: root.language;
+            ai_model: root.model_id;
+            tab_selected(path) => { root.tab_selected(path); }
+            tab_closed(path) => { root.tab_closed(path); }
         }
 
         Rectangle {
